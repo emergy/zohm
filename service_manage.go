@@ -69,15 +69,15 @@ func (x *DebugCommand) Execute(args []string) error {
 }
 
 func init() {
-	parser.AddCommand("start",
+	optsParser.AddCommand("start",
 		"Start service",
 		"", &startCommand)
 
-	parser.AddCommand("stop",
+	optsParser.AddCommand("stop",
 		"Stop service",
 		"", &stopCommand)
 
-	parser.AddCommand("debug",
+	optsParser.AddCommand("debug",
 		"Debug mode",
 		"", &debugCommand)
 }

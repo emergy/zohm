@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"io/ioutil"
+	"strconv"
 
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
@@ -15,6 +16,9 @@ import (
 
 	"github.com/rakyll/statik/fs"
 	_ "github.com/emergy/zohm/statik"
+
+	//"github.com/davecgh/go-spew/spew"
+	"github.com/emergy/zohm/parser"
 )
 
 var elog debug.Log
@@ -43,6 +47,11 @@ func (m *zohmService) Execute(args []string, r <-chan svc.ChangeRequest, changes
 		settings[key] = val
 	}
 
+    updateTime, err := strconv.Atoi(settings["UpdateTime"])
+    if err != nil {
+        updateTime = 30
+    }
+
     dir, err := ioutil.TempDir("", "OpenHardwareMonitor")
     if err != nil {
         log.Fatalf("Can't create tempory directory: %s\n", err)
@@ -66,7 +75,15 @@ loop:
 	for {
 		select {
 		case <-tick:
-			ohmParser(cmd, settings, DebugMode)
+			data := parser.Exec(cmd)
+			zabbixSend(data, settings, DebugMode)
+
+			if DebugMode {
+				//spew.Dump(data)
+				os.Exit(0)
+			}
+
+			time.Sleep(time.Duration(updateTime) * time.Second)
 		case c := <-r:
 			switch c.Cmd {
 			case svc.Interrogate:

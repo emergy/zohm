@@ -12,8 +12,10 @@ type Options struct {
 }
 
 var Opts Options
-var parser = flags.NewParser(&Opts, flags.Default)
+var optsParser = flags.NewParser(&Opts, flags.Default)
 
+
+// test doc123
 func main() {
     isIntSess, err := svc.IsAnInteractiveSession()
 	if err != nil {
@@ -25,7 +27,7 @@ func main() {
         return
     }
 
-    if _, err := parser.Parse(); err != nil {
+    if _, err := optsParser.Parse(); err != nil {
         if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
             os.Exit(0)
         } else {

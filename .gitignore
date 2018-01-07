@@ -1,1 +1,4 @@
 zohm.exe
+*.swp
+*.go-bak
+*.bak

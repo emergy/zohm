@@ -33,11 +33,11 @@ func init() {
         }
     }
 
-	parser.AddCommand("install",
+	optsParser.AddCommand("install",
 		"Install Windows service",
 		"", &installCommand)
 
-    parser.AddCommand("uninstall",
+    optsParser.AddCommand("uninstall",
         "Uninstall Windows service",
         "", &uninstallCommand)
 
