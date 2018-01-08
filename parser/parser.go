@@ -20,7 +20,6 @@ type DataStruct struct {
 	ItemKey string
 }
 
-
 func Exec(cmd string) []DataStruct {
     _ = spew.Sdump("")
     _ = fmt.Sprintf("")
@@ -37,12 +36,22 @@ func Exec(cmd string) []DataStruct {
     sensors := parseSensors(ohmReport)
     rv = append(rv, sensors)
 
+    smart := parseSMART(ohmReport)
+    rv = append(rv, smart)
+
     return rv
 }
 
-/*
-func parseSMART(data string) {
+func parseSMART(data string) DataStruct {
     var smart string
+
+    type discoveryStruct struct {
+        ID string `json:"{#ID}"`
+        Thres string `json:"{#THRES}"`
+        Description string `json:"{#DESCRIPTION}"`
+    }
+
+    var discoveryList []discoveryStruct
 
     if m := regexp.MustCompile(`(?ms:^GenericHarddisk.*ID\s+Description.*?\n(.*?)\n\n)`).FindStringSubmatch(data); len(m) > 1 {
         smart = m[1]
@@ -50,37 +59,51 @@ func parseSMART(data string) {
         log.Fatal("can't find SMART in in ohmReport")
     }
 
-/*
- *  ID Description                        Raw Value    Worst Value Thres Physical
- *  01 Read Error Rate                    A8F0B1050000 99    115   6     -
-*/
+    itemsList := make(map[string]string)
 
-/*
     for _, line := range strings.Split(smart, "\n") {
-        for _, f := range strings.Fields(line) {
-            id := f[0]
-            description := f[1]
-            rawValue := f[2]
-            worst := f[3]
-            value := f[4]
-            thres := f[5]
-            physical := f[6]
+        if g, m := lineParser(line, `^\s*(?P<ID>[[:xdigit:]]{2})\s+(?P<Description>.*?)\s{2,}(?P<RawValue>[[:xdigit:]]+)\s+(?P<Worst>\d+)\s+(?P<Value>\d+)\s+(?P<Thres>\d+)\s+(?P<Physical>.*?)\s*$`); m == true {
+            discoveryList = append(discoveryList, discoveryStruct{
+                ID: g["ID"],
+                Thres: g["Thres"],
+                Description: g["Description"],
+            })
 
+            itemsList[fmt.Sprintf("RawValue:%s", g["ID"])] = g["RawValue"]
+            itemsList[fmt.Sprintf("Value:%s", g["ID"])] = g["Value"]
+            itemsList[fmt.Sprintf("Worst:%s", g["ID"])] = g["Worst"]
+        }
+    }
 
+    type discoveryDataStruct struct {
+        Data []discoveryStruct `json:"data"`
+    }
 
+    discoveryString, err := json.Marshal(discoveryDataStruct{
+        Data: discoveryList,
+    })
 
+    if err != nil {
+        log.Fatal(fmt.Sprintf("Can't build discovery JSON: %s\n", err))
+    }
+
+    return DataStruct{
+        DiscoveryString: string(discoveryString),
+        DiscoveryKey: "zohm.smart.discovery",
+        ItemsList: itemsList,
+        ItemKey: "zohm.smart.item",
+    }
 }
-*/
 
 func parseSensors(data string) DataStruct {
     var sensors string
 
-	type discoveryStruct struct {
-		DeviceName string `json:"{#DEVICENAME}"`
-		DevicePath string `json:"{#DEVICEPATH}"`
-		MetricName string `json:"{#METRICNAME}"`
-		MetricPath string `json:"{#METRICPATH}"`
-	}
+    type discoveryStruct struct {
+        DeviceName string `json:"{#DEVICENAME}"`
+        DevicePath string `json:"{#DEVICEPATH}"`
+        MetricName string `json:"{#METRICNAME}"`
+        MetricPath string `json:"{#METRICPATH}"`
+    }
 
 	var discoveryList []discoveryStruct
 

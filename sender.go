@@ -16,7 +16,7 @@ func zabbixSend(dataHeap []parser.DataStruct, settings map[string]string, debug 
 	_ = t
 
     if debug {
-        spew.Dump(settings)
+        spew.Dump(settings, dataHeap)
     }
 
 	zabbixServer, zabbixPort := splitServerPort(settings["ZabbixServer"])
