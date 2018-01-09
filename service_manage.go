@@ -35,6 +35,10 @@ func (x *StartCommand) Execute(args []string) error {
 }
 
 func (x *StopCommand) Execute(args []string) error {
+    return stopService()
+}
+
+func stopService() error {
 	m, err := mgr.Connect()
 	if err != nil {
 		return err

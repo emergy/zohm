@@ -11,10 +11,6 @@ import (
 )
 
 func zabbixSend(dataHeap []parser.DataStruct, settings map[string]string, debug bool) {
-    _ = spew.Sdump(dataHeap)
-	var t *Metric
-	_ = t
-
     if debug {
         spew.Dump(settings, dataHeap)
     }
@@ -41,19 +37,31 @@ func zabbixSend(dataHeap []parser.DataStruct, settings map[string]string, debug 
 		for k, v := range d.ItemsList {
 			metric := NewMetric(settings["HostName"], fmt.Sprintf("%s[%s]", d.ItemKey, k), v)
 			metrics = append(metrics, metric)
-		}
 
-		packet := NewPacket(metrics)
-		senderOutput, sndrErr := z.Send(packet)
-		if sndrErr != nil {
-			log.Printf("Can't send packet to zabbix server: %s", err)
+			if len(metrics) > 240 {
+				send(z, metrics, debug)
+				metrics = metrics[:0]
+			}
 		}
-
-		if debug {
-			log.Printf("%s\n", senderOutput)
+		
+		if len(metrics) > 0 {
+			send(z, metrics, debug)
 		}
     }
 }
+
+func send(z *Sender, metrics []*Metric, debug bool) {
+	packet := NewPacket(metrics)
+	senderOutput, sndrErr := z.Send(packet)
+	if sndrErr != nil {
+		log.Printf("Can't send packet to zabbix server: %s", sndrErr)
+	}
+
+	if debug {
+		log.Printf("%s\n", senderOutput)
+	}
+}
+
 
 func splitServerPort(s string) (string, int) {
 	sp := strings.Split(s, ":")

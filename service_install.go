@@ -59,6 +59,12 @@ func (x *InstallCommand) Execute(args []string) error {
 }
 
 func (x *UninstallCommand) Execute(args []string) error {
+    if err := stopService(); err != nil {
+        if Opts.Verbose == true {
+            log.Printf("can't stop zohm service: %s", err)
+        }
+    }
+
     if x.KeepSettings == false {
         if err := registry.DeleteKey(registry.LOCAL_MACHINE, `SOFTWARE\AlexEmergy\zohm`); err != nil {
             if Opts.Verbose == true {
