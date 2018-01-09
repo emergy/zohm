@@ -1,0 +1,12 @@
+Zabbix Open Hardware Monitor
+
+Send Sensors and S.M.A.R.T. metrics to Zabbix
+
+This project use Open Hardware Monitor Report tool (https://github.com/openhardwaremonitor/openhardwaremonitor/issues/776)
+
+
+- Copy zohm.exe to any directory (e.g. C:/Windows)
+- Import a template into your Zabbix Frontend (https://www.zabbix.com/documentation/3.2/manual/xml_export_import)
+- Run zohm.exe install
+
+See zohm.exe /? for details
