@@ -6,7 +6,7 @@ This project use Open Hardware Monitor Report tool (https://github.com/openhardw
 
 
 - Copy zohm.exe to any directory (e.g. C:\Windows)
-- Import a template into your Zabbix Frontend (https://www.zabbix.com/documentation/3.2/manual/xml_export_import)
+- Import a zbx_export_templates.xml into your Zabbix Frontend (https://www.zabbix.com/documentation/3.2/manual/xml_export_import)
 - Run zohm.exe install /?
 
 See zohm.exe /? for more details
